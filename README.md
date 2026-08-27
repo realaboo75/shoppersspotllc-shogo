@@ -4,7 +4,7 @@
 
 **Built by:** Aboobakar — Founder, ShoppersSpot LLC  
 **Platform:** Vite + React + TypeScript + Tailwind CSS + Prisma (SQLite)  
-**Architecture:** See [ARCHITECTURE.md](./ARCHITECTURE.md)
+**Architecture:** Vite/React frontend with Vercel Functions for authentication; see the deployment notes below.
 
 ---
 
@@ -12,13 +12,13 @@
 
 ```bash
 # Install dependencies
-bun install
+npm install
 
 # Start development server
-bun run dev
+npm run dev
 
 # Build for production
-bun run build
+npm run build
 ```
 
 ## What's Included
@@ -47,7 +47,7 @@ Private dashboard for managing your business empire:
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 19, TypeScript 5, Vite 6 |
+| Frontend | React 19, TypeScript 5, Vite 7 |
 | Styling | Tailwind CSS v4, shadcn/ui |
 | Charts | Recharts |
 | Icons | lucide-react |
@@ -56,6 +56,14 @@ Private dashboard for managing your business empire:
 | Package Manager | bun |
 
 ---
+
+## Authentication and deployment
+
+The Founder Studio authentication boundary is server-side. Configure `FOUNDER_EMAIL`, `FOUNDER_PASSWORD_HASH`, and `AUTH_SECRET` as deployment environment variables; never put real values in source or client-exposed environment variables. Generate a password hash with `PASSWORD='your-password' node scripts/hash-password.mjs` in a secure shell, then store only the resulting hash in the deployment environment.
+
+The frontend can be developed with `npm run dev`; `npm run build && npm start` serves the compiled frontend and the same `/api/auth/*` handlers locally. Vercel deploys the functions from `api/` automatically. Password reset intentionally returns a configuration error until a real email provider and single-use token store are connected. Project data remains local browser demo data until a durable database/API is provisioned; it must not be treated as a multi-user production data store.
+
+Available checks: `npm run typecheck`, `npm test`, and `npm run build`.
 
 ## License
 

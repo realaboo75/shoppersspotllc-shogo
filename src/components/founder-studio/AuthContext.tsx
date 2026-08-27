@@ -1,64 +1,76 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
+
+export interface AuthUser { name: string; email: string }
+export interface AuthResult { ok: boolean; error?: string; message?: string }
 
 interface AuthCtx {
   isAuthenticated: boolean
-  user: { name: string; email: string } | null
-  login: (email: string, password: string) => boolean
-  logout: () => void
-  requestPasswordReset: (email: string) => boolean
+  loading: boolean
+  user: AuthUser | null
+  login: (email: string, password: string) => Promise<AuthResult>
+  logout: () => Promise<void>
+  requestPasswordReset: (email: string) => Promise<AuthResult>
 }
 
 const Ctx = createContext<AuthCtx>({
-  isAuthenticated: false, user: null,
-  login: () => false, logout: () => {}, requestPasswordReset: () => false,
+  isAuthenticated: false, loading: true, user: null,
+  login: async () => ({ ok: false, error: 'Authentication is unavailable.' }),
+  logout: async () => {}, requestPasswordReset: async () => ({ ok: false, error: 'Password reset is unavailable.' }),
 })
 
 export const useAuth = () => useContext(Ctx)
 
-const VALID_EMAIL = 'founder@shoppersspotllc.com'
-const VALID_PASSWORD = 'Founder@1975'
-const VALID_NAME = 'Aboobakar'
-const STORAGE_KEY = 'fs-auth-session'
-const RESET_KEY = 'fs-password-reset'
-
-function loadSession(): { name: string; email: string } | null {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) return JSON.parse(stored)
-  } catch {}
-  return null
+async function readResponse(response: Response): Promise<AuthResult & { user?: AuthUser }> {
+  const body = await response.json().catch(() => ({})) as Partial<AuthResult> & { user?: AuthUser }
+  if (!response.ok) return { ok: false, error: body.error || 'Authentication request failed.' }
+  return { ok: true, ...body }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<{ name: string; email: string } | null>(loadSession)
+  const [user, setUser] = useState<AuthUser | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const login = useCallback((email: string, password: string) => {
-    if (email === VALID_EMAIL && password === VALID_PASSWORD) {
-      const u = { name: VALID_NAME, email: VALID_EMAIL }
-      setUser(u)
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(u)) } catch {}
-      return true
+  useEffect(() => {
+    let active = true
+    fetch('/api/auth/me', { credentials: 'same-origin' })
+      .then(readResponse)
+      .then(result => { if (active && result.ok) setUser(result.user ?? null) })
+      .catch(() => {})
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [])
+
+  const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      const result = await readResponse(response)
+      if (result.ok) setUser(result.user ?? null)
+      return result
+    } catch {
+      return { ok: false, error: 'Unable to reach the authentication service.' }
     }
-    return false
   }, [])
 
-  const logout = useCallback(() => {
-    setUser(null)
-    try { localStorage.removeItem(STORAGE_KEY) } catch {}
+  const logout = useCallback(async () => {
+    try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }) } finally { setUser(null) }
   }, [])
 
-  const requestPasswordReset = useCallback((email: string) => {
-    if (email === VALID_EMAIL) {
-      try {
-        localStorage.setItem(RESET_KEY, JSON.stringify({
-          email, timestamp: Date.now(),
-          message: 'Password reset link sent to usaaboo@gmail.com'
-        }))
-      } catch {}
-      return true
+  const requestPasswordReset = useCallback(async (email: string): Promise<AuthResult> => {
+    try {
+      const response = await fetch('/api/auth/reset', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      return await readResponse(response)
+    } catch {
+      return { ok: false, error: 'Unable to reach the password reset service.' }
     }
-    return false
   }, [])
 
-  return <Ctx.Provider value={{ isAuthenticated: !!user, user, login, logout, requestPasswordReset }}>{children}</Ctx.Provider>
+  return <Ctx.Provider value={{ isAuthenticated: !!user, loading, user, login, logout, requestPasswordReset }}>{children}</Ctx.Provider>
 }

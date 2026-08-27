@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, ArrowLeft, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
 import { useAuth } from './AuthContext'
 
-const CHERRI_PHOTO = '/avatars/cherri.png'
+const CHERRI_PHOTO = '/avatars/cherri.svg'
 
 export default function LoginPage({ onBack }: { onBack: () => void }) {
   const { login, loading, requestPasswordReset } = useAuth()
@@ -15,19 +15,19 @@ export default function LoginPage({ onBack }: { onBack: () => void }) {
   const [resetSent, setResetSent] = useState(false)
   const [resetMessage, setResetMessage] = useState('')
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setError('')
     if (!email.trim()) { setError('Please enter your email address.'); return }
     if (!password.trim()) { setError('Please enter your password.'); return }
-    const result = login(email.trim(), password)
+    const result = await login(email.trim(), password)
     if (!result.ok && result.error) setError(result.error)
   }
 
-  const handleResetSubmit = () => {
+  const handleResetSubmit = async () => {
     if (!resetEmail.trim()) { setError('Please enter your email address.'); return }
-    const result = requestPasswordReset(resetEmail.trim())
-    setResetMessage(result.message)
-    setResetSent(true)
+    const result = await requestPasswordReset(resetEmail.trim())
+    if (result.ok) { setResetMessage(result.message || 'If the account exists, instructions will be sent.'); setResetSent(true) }
+    else setError(result.error || 'Password reset is unavailable.')
   }
 
   if (showForgot) {
@@ -160,7 +160,7 @@ export default function LoginPage({ onBack }: { onBack: () => void }) {
                 { name: 'Microsoft', logo: <svg viewBox="0 0 24 24" className="w-5 h-5"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg> },
                 { name: 'Apple', logo: <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.52-3.23 0-1.44.65-2.2.48-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg> },
               ].map(s => (
-                <button key={s.name} onClick={handleLogin}
+                <button key={s.name} type="button" disabled aria-label={`${s.name} sign-in is not configured`}
                   className="py-2.5 rounded-xl bg-bg-elevated border border-border-subtle text-sm text-text-secondary hover:bg-bg-hover hover:border-accent/30 transition-all flex items-center justify-center gap-2">
                   {s.logo} <span className="text-xs">{s.name}</span>
                 </button>

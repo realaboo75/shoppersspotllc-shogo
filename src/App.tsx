@@ -27,7 +27,7 @@ export type NavId = 'dashboard' | 'cherimoya' | 'create' | 'projects' | 'templat
 type Page = 'public' | 'studio'
 
 function AppContent() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, loading } = useAuth()
   const [page, setPage] = useState<Page>(() => {
     try { return (localStorage.getItem('fs-page') as Page) || 'public' } catch { return 'public' }
   })
@@ -53,6 +53,10 @@ function AppContent() {
     return () => window.removeEventListener('keydown', handler)
   }, [])
 
+  if (loading) {
+    return <div className="min-h-screen bg-bg flex items-center justify-center text-text-secondary">Loading Founder Studio…</div>
+  }
+
   if (page === 'public') {
     return <PublicSite onEnterStudio={goToStudio} />
   }
@@ -74,7 +78,7 @@ function AppContent() {
             onExitStudio={goToPublic}
           />
           <div className="flex-1 flex flex-col min-w-0 relative z-10">
-            <Header active={active} onOpenPalette={() => {}} />
+            <Header active={active} />
             <main className="flex-1 overflow-y-auto p-4 md:p-6">
               {active === 'dashboard' ? (
                 <Dashboard onCreateProject={() => setActive('create')} onGoToPublic={goToPublic} />

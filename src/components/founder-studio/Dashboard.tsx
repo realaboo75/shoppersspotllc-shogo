@@ -79,7 +79,7 @@ export default function Dashboard({ onCreateProject, onGoToPublic }: Props) {
 
       <div className="glass rounded-2xl p-6 gradient-border card-shine animate-fade-in stagger-1">
         <div className="flex items-center gap-3 mb-4">
-          <img src="/avatars/cherri.png" alt="Cherri" className="w-10 h-10 rounded-full object-cover border-2 border-rose-400/30" />
+          <img src="/avatars/cherri.svg" alt="Cherri" className="w-10 h-10 rounded-full object-cover border-2 border-rose-400/30" />
           <div>
             <h2 className="text-base font-semibold text-text-primary">What would you like to build?</h2>
             <p className="text-xs text-text-secondary">Tell me your idea — I'll handle everything else</p>
@@ -180,7 +180,7 @@ export default function Dashboard({ onCreateProject, onGoToPublic }: Props) {
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 glass rounded-2xl p-5 animate-fade-in stagger-5">
           <div className="flex items-center gap-2 mb-4">
-            <img src="/avatars/cherri.png" alt="Cherri" className="w-6 h-6 rounded-full object-cover" />
+            <img src="/avatars/cherri.svg" alt="Cherri" className="w-6 h-6 rounded-full object-cover" />
             <h3 className="text-sm font-medium text-text-secondary">Cherri's Daily Briefing</h3>
           </div>
           <div className="space-y-3">

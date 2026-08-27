@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send, Mic, Image as ImageIcon, Paperclip, X, Minus, Maximize2 } from 'lucide-react'
 
-const CHERRI_PHOTO = '/avatars/cherri.png'
+const CHERRI_PHOTO = '/avatars/cherri.svg'
 
 interface Msg { id: string; role: 'user' | 'assistant'; text: string; time: string }
 

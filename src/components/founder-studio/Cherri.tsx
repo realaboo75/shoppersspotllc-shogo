@@ -82,7 +82,7 @@ export default function Cherri() {
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
             <div className={`flex gap-2.5 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
               <div className="flex-shrink-0 mt-0.5">
-                {msg.role === 'assistant' ? <img src="/avatars/cherri.png" alt="Cherri" className="w-7 h-7 rounded-full object-cover" /> : <div className="w-7 h-7 rounded-full bg-accent/20 flex items-center justify-center"><User className="w-3.5 h-3.5 text-accent" /></div>}
+                {msg.role === 'assistant' ? <img src="/avatars/cherri.svg" alt="Cherri" className="w-7 h-7 rounded-full object-cover" /> : <div className="w-7 h-7 rounded-full bg-accent/20 flex items-center justify-center"><User className="w-3.5 h-3.5 text-accent" /></div>}
               </div>
               <div>
                 <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${msg.role === 'user' ? 'bg-accent text-white rounded-br-md' : 'bg-bg-elevated text-text-primary border border-border-subtle rounded-bl-md'}`}>
@@ -96,7 +96,7 @@ export default function Cherri() {
         {typing && (
           <div className="flex justify-start animate-fade-in">
             <div className="flex gap-2.5">
-              <img src="/avatars/cherri.png" alt="Cherri" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+              <img src="/avatars/cherri.svg" alt="Cherri" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
               <div className="rounded-2xl rounded-bl-md px-4 py-3 bg-bg-elevated border border-border-subtle">
                 <div className="flex gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-text-muted animate-bounce" style={{ animationDelay: '0ms' }} />
